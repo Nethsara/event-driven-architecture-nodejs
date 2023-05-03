@@ -76,9 +76,9 @@ dataSource
                             eventProduct = JSON.parse(msg.content.toString());
                             product = new product_1.Product();
                             product.admin_id = parseInt(eventProduct.id);
-                            product.title = parseInt(eventProduct.title);
-                            product.image = parseInt(eventProduct.image);
-                            product.likes = parseInt(eventProduct.likes);
+                            product.title = eventProduct.title;
+                            product.image = eventProduct.image;
+                            product.likes = eventProduct.likes;
                             return [4 /*yield*/, productRepo.save(product)];
                         case 1:
                             _a.sent();
@@ -116,7 +116,7 @@ dataSource
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            admin_id = msg.content.toString();
+                            admin_id = parseInt(msg.content.toString());
                             return [4 /*yield*/, productRepo.delete({ admin_id: admin_id })];
                         case 1:
                             _a.sent();

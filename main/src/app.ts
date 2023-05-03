@@ -46,9 +46,9 @@ dataSource
               const eventProduct: Product = JSON.parse(msg.content.toString());
               const product = new Product();
               product.admin_id = parseInt(eventProduct.id);
-              product.title = parseInt(eventProduct.title);
-              product.image = parseInt(eventProduct.image);
-              product.likes = parseInt(eventProduct.likes);
+              product.title = eventProduct.title;
+              product.image = eventProduct.image;
+              product.likes = eventProduct.likes;
               await productRepo.save(product);
               console.log("Product Created");
             },
@@ -76,7 +76,7 @@ dataSource
           channel.consume(
             "product_deleted",
             async (msg) => {
-              const admin_id = msg.content.toString();
+              const admin_id = parseInt(msg.content.toString());
               await productRepo.delete({ admin_id });
               console.log("Product deleted");
             },
