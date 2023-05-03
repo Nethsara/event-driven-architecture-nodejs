@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import * as cors from "cors";
 import { DataSource } from "typeorm";
 import { Product } from "./entity/product";
+
 const dataSource = new DataSource({
   type: "mysql",
   host: "localhost",
