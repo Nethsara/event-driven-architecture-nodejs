@@ -1,0 +1,11 @@
+{
+  "type": "mongodb",
+  "host": "localhost",
+  "database": "msc_main",
+  "synchronise": true,
+  "loggin": false,
+  "entities": ["src/entity/*.js"],
+  "cli": {
+    "entitiesDir": "src/entity"
+  }
+}
