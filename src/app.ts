@@ -66,6 +66,15 @@ dataSource
       return res.send(result);
     });
 
+    app.post("/api/products/:id/like", async (req: Request, res: Response) => {
+      const product = await productRepo.findOne({
+        where: { id: parseInt(req.params.id, 10) },
+      });
+      product.likes++;
+      const result = await productRepo.save(product);
+      return res.send(result);
+    });
+
     app.listen(8000, () => {
       console.log("Listen on Port 8000");
     });

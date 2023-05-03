@@ -132,6 +132,23 @@ dataSource
             }
         });
     }); });
+    app.post("/api/products/:id/like", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var product, result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, productRepo.findOne({
+                        where: { id: parseInt(req.params.id, 10) },
+                    })];
+                case 1:
+                    product = _a.sent();
+                    product.likes++;
+                    return [4 /*yield*/, productRepo.save(product)];
+                case 2:
+                    result = _a.sent();
+                    return [2 /*return*/, res.send(result)];
+            }
+        });
+    }); });
     app.listen(8000, function () {
         console.log("Listen on Port 8000");
     });
