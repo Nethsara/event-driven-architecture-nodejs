@@ -24,15 +24,19 @@ dataSource
         connection.createChannel(function (error1, channel) {
             if (error1)
                 throw error1;
+            channel.assertQueue("hello", { durable: false });
+            var app = express();
+            app.use(cors({
+                origin: ["http://localhost:3000"],
+            }));
+            app.use(express.json());
+            channel.consume("hello", function (msg) {
+                console.log(msg.content.toString());
+            });
+            app.listen(8001, function () {
+                console.log("Listen on Port 8001");
+            });
         });
-    });
-    var app = express();
-    app.use(cors({
-        origin: ["http://localhost:3000"],
-    }));
-    app.use(express.json());
-    app.listen(8001, function () {
-        console.log("Listen on Port 8001");
     });
 })
     .catch(function (err) {

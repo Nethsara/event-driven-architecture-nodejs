@@ -13,7 +13,7 @@ const dataSource = new DataSource({
   password: "",
   database: "msc_admin",
   entities: ["src/entity/*.js"],
-  logging: true,
+  logging: false,
   synchronize: true,
 });
 
@@ -41,8 +41,9 @@ dataSource
           app.use(express.json());
 
           app.get("/api/products", async (req: Request, res: Response) => {
-            console.log("Requsting products");
+            console.log("hello from emitter");
 
+            channel.sendToQueue("hello", Buffer.from("hello"));
             const porducts = await productRepo.find();
             res.json(porducts);
           });

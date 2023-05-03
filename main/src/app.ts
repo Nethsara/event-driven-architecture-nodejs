@@ -27,6 +27,8 @@ dataSource
         connection.createChannel((error1, channel) => {
           if (error1) throw error1;
 
+          channel.assertQueue("hello", { durable: false });
+
           const app = express();
 
           app.use(
@@ -36,6 +38,10 @@ dataSource
           );
 
           app.use(express.json());
+
+          channel.consume("hello", (msg) => {
+            console.log(msg.content.toString());
+          });
 
           app.listen(8001, () => {
             console.log("Listen on Port 8001");
