@@ -72,10 +72,7 @@ dataSource
                 var porducts;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0:
-                            console.log("hello from emitter");
-                            channel.sendToQueue("hello", Buffer.from("hello"));
-                            return [4 /*yield*/, productRepo.find()];
+                        case 0: return [4 /*yield*/, productRepo.find()];
                         case 1:
                             porducts = _a.sent();
                             res.json(porducts);
@@ -93,6 +90,7 @@ dataSource
                             return [4 /*yield*/, productRepo.save(product)];
                         case 2:
                             result = _a.sent();
+                            channel.sendToQueue("product_created", Buffer.from(JSON.stringify(result)));
                             return [2 /*return*/, res.send(result)];
                     }
                 });
@@ -125,6 +123,7 @@ dataSource
                             return [4 /*yield*/, productRepo.save(product)];
                         case 2:
                             result = _a.sent();
+                            channel.sendToQueue("product_updated", Buffer.from(JSON.stringify(result)));
                             res.send(result);
                             return [2 /*return*/];
                     }
@@ -137,6 +136,7 @@ dataSource
                         case 0: return [4 /*yield*/, productRepo.delete(req.params.id)];
                         case 1:
                             result = _a.sent();
+                            channel.sendToQueue("product_deleted", Buffer.from(JSON.stringify(req.params.id)));
                             return [2 /*return*/, res.send(result)];
                     }
                 });
@@ -160,6 +160,10 @@ dataSource
             }); });
             app.listen(8000, function () {
                 console.log("Listen on Port 8000");
+            });
+            process.on("beforeExit", function () {
+                console.log("Clossing ");
+                connection.close();
             });
         });
     });

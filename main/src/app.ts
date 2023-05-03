@@ -1,5 +1,4 @@
 import * as express from "express";
-import { Request, Response } from "express";
 import * as cors from "cors";
 import { DataSource } from "typeorm";
 import { Product } from "./entity/product";
@@ -27,7 +26,9 @@ dataSource
         connection.createChannel((error1, channel) => {
           if (error1) throw error1;
 
-          channel.assertQueue("hello", { durable: false });
+          channel.assertQueue("product_created", { durable: false });
+          channel.assertQueue("product_updated", { durable: false });
+          channel.assertQueue("product_deleted", { durable: false });
 
           const app = express();
 
@@ -39,12 +40,55 @@ dataSource
 
           app.use(express.json());
 
-          channel.consume("hello", (msg) => {
-            console.log(msg.content.toString());
-          });
+          channel.consume(
+            "product_created",
+            async (msg) => {
+              const eventProduct: Product = JSON.parse(msg.content.toString());
+              const product = new Product();
+              product.admin_id = parseInt(eventProduct.id);
+              product.title = parseInt(eventProduct.title);
+              product.image = parseInt(eventProduct.image);
+              product.likes = parseInt(eventProduct.likes);
+              await productRepo.save(product);
+              console.log("Product Created");
+            },
+            { noAck: true }
+          );
+
+          channel.consume(
+            "product_updated",
+            async (msg) => {
+              const eventProduct: Product = JSON.parse(msg.content.toString());
+              const product = await productRepo.findOne({
+                where: { admin_id: parseInt(eventProduct.id, 10) },
+              });
+              productRepo.merge(product, {
+                title: eventProduct.title,
+                image: eventProduct.image,
+                likes: eventProduct.likes,
+              });
+              await productRepo.save(product);
+              console.log("Product Updated");
+            },
+            { noAck: true }
+          );
+
+          channel.consume(
+            "product_deleted",
+            async (msg) => {
+              const admin_id = msg.content.toString();
+              await productRepo.delete({ admin_id });
+              console.log("Product deleted");
+            },
+            { noAck: true }
+          );
 
           app.listen(8001, () => {
             console.log("Listen on Port 8001");
+          });
+          process.on("beforeExit", () => {
+            console.log("Clossing ");
+            connection.close();
           });
         });
       }

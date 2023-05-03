@@ -41,9 +41,6 @@ dataSource
           app.use(express.json());
 
           app.get("/api/products", async (req: Request, res: Response) => {
-            console.log("hello from emitter");
-
-            channel.sendToQueue("hello", Buffer.from("hello"));
             const porducts = await productRepo.find();
             res.json(porducts);
           });
@@ -51,6 +48,11 @@ dataSource
           app.post("/api/products", async (req: Request, res: Response) => {
             const product = await productRepo.create(req.body);
             const result = await productRepo.save(product);
+            channel.sendToQueue(
+              "product_created",
+              Buffer.from(JSON.stringify(result))
+            );
+
             return res.send(result);
           });
 
@@ -69,6 +71,10 @@ dataSource
             });
             productRepo.merge(product, req.body);
             const result = await productRepo.save(product);
+            channel.sendToQueue(
+              "product_updated",
+              Buffer.from(JSON.stringify(result))
+            );
             res.send(result);
           });
 
@@ -76,6 +82,10 @@ dataSource
             "/api/products/:id",
             async (req: Request, res: Response) => {
               const result = await productRepo.delete(req.params.id);
+              channel.sendToQueue(
+                "product_deleted",
+                Buffer.from(JSON.stringify(req.params.id))
+              );
               return res.send(result);
             }
           );
@@ -94,6 +104,10 @@ dataSource
 
           app.listen(8000, () => {
             console.log("Listen on Port 8000");
+          });
+          process.on("beforeExit", () => {
+            console.log("Clossing ");
+            connection.close();
           });
         });
       }
